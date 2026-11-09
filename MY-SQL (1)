@@ -1,0 +1,492 @@
+-- MySQL dump 10.13  Distrib 8.0.46, for Win64 (x86_64)
+--
+-- Host: localhost    Database: digitalpaymentfraud
+-- ------------------------------------------------------
+-- Server version	8.0.46
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `accounts`
+--
+
+DROP TABLE IF EXISTS `accounts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `accounts` (
+  `account_id` int NOT NULL AUTO_INCREMENT,
+  `customer_id` int NOT NULL,
+  `bank_id` int NOT NULL,
+  `account_number` varchar(30) NOT NULL,
+  `account_type` varchar(20) DEFAULT NULL,
+  `balance` decimal(15,2) DEFAULT NULL,
+  `account_status` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`account_id`),
+  UNIQUE KEY `account_number` (`account_number`),
+  KEY `customer_id` (`customer_id`),
+  KEY `bank_id` (`bank_id`),
+  CONSTRAINT `accounts_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`),
+  CONSTRAINT `accounts_ibfk_2` FOREIGN KEY (`bank_id`) REFERENCES `banks` (`bank_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `accounts`
+--
+
+LOCK TABLES `accounts` WRITE;
+/*!40000 ALTER TABLE `accounts` DISABLE KEYS */;
+INSERT INTO `accounts` VALUES (1,1,1,'SBI100001','SAVINGS',85000.00,'ACTIVE'),(2,2,2,'HDFC100002','SAVINGS',125000.00,'ACTIVE'),(3,3,3,'ICICI100003','CURRENT',45000.00,'ACTIVE'),(4,4,4,'AXIS100004','SAVINGS',67000.00,'ACTIVE'),(5,5,5,'PNB100005','SAVINGS',92000.00,'BLOCKED'),(6,6,6,'KOTAK100006','CURRENT',150000.00,'ACTIVE'),(7,7,7,'BOB100007','SAVINGS',38000.00,'ACTIVE'),(8,8,8,'CANARA100008','SAVINGS',76000.00,'ACTIVE'),(9,9,1,'SBI100009','CURRENT',210000.00,'ACTIVE'),(10,10,2,'HDFC100010','SAVINGS',54000.00,'INACTIVE');
+/*!40000 ALTER TABLE `accounts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `banks`
+--
+
+DROP TABLE IF EXISTS `banks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `banks` (
+  `bank_id` int NOT NULL AUTO_INCREMENT,
+  `bank_name` varchar(100) NOT NULL,
+  `ifsc_prefix` varchar(4) DEFAULT NULL,
+  `headquarters` varchar(100) DEFAULT NULL,
+  `bank_status` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`bank_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `banks`
+--
+
+LOCK TABLES `banks` WRITE;
+/*!40000 ALTER TABLE `banks` DISABLE KEYS */;
+INSERT INTO `banks` VALUES (1,'State Bank of India','SBIN','Mumbai','ACTIVE'),(2,'HDFC Bank','HDFC','Mumbai','ACTIVE'),(3,'ICICI Bank','ICIC','Mumbai','ACTIVE'),(4,'Axis Bank','UTIB','Mumbai','ACTIVE'),(5,'Punjab National Bank','PUNB','New Delhi','ACTIVE'),(6,'Kotak Mahindra Bank','KKBK','Mumbai','ACTIVE'),(7,'Bank of Baroda','BARB','Vadodara','ACTIVE'),(8,'Canara Bank','CNRB','Bengaluru','ACTIVE');
+/*!40000 ALTER TABLE `banks` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `chargebacks`
+--
+
+DROP TABLE IF EXISTS `chargebacks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `chargebacks` (
+  `chargeback_id` int NOT NULL AUTO_INCREMENT,
+  `transaction_id` int NOT NULL,
+  `chargeback_amount` decimal(15,2) DEFAULT NULL,
+  `chargeback_date` date DEFAULT NULL,
+  `chargeback_reason` varchar(255) DEFAULT NULL,
+  `chargeback_status` varchar(30) DEFAULT NULL,
+  `resolution_date` date DEFAULT NULL,
+  PRIMARY KEY (`chargeback_id`),
+  KEY `transaction_id` (`transaction_id`),
+  CONSTRAINT `chargebacks_ibfk_1` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`transaction_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `chargebacks`
+--
+
+LOCK TABLES `chargebacks` WRITE;
+/*!40000 ALTER TABLE `chargebacks` DISABLE KEYS */;
+INSERT INTO `chargebacks` VALUES (1,1,1500.00,'2025-06-02','Unauthorized transaction','APPROVED','2025-06-05'),(2,2,2500.00,'2025-06-03','Duplicate payment','REJECTED','2025-06-06'),(3,3,75000.00,'2025-06-04','Suspicious high-value transaction','PENDING',NULL),(4,4,12000.00,'2025-06-05','Service not received','APPROVED','2025-06-10'),(5,5,95000.00,'2025-06-06','Unauthorized late-night payment','PENDING',NULL),(6,6,800.00,'2025-06-07','Incorrect payment deduction','REJECTED','2025-06-09'),(7,7,45000.00,'2025-06-08','Fraudulent transaction reported','APPROVED','2025-06-12'),(8,8,3000.00,'2025-06-09','Product not delivered','PENDING',NULL),(9,9,150000.00,'2025-06-10','Unauthorized high-value payment','PENDING',NULL),(10,10,500.00,'2025-06-11','Incorrect transaction amount','REJECTED','2025-06-13');
+/*!40000 ALTER TABLE `chargebacks` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `customers`
+--
+
+DROP TABLE IF EXISTS `customers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `customers` (
+  `customer_id` int NOT NULL AUTO_INCREMENT,
+  `full_name` varchar(100) NOT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `phone` varchar(15) DEFAULT NULL,
+  `date_of_birth` date DEFAULT NULL,
+  `registration_date` date DEFAULT NULL,
+  `customer_status` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`customer_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `customers`
+--
+
+LOCK TABLES `customers` WRITE;
+/*!40000 ALTER TABLE `customers` DISABLE KEYS */;
+INSERT INTO `customers` VALUES (1,'Sampath','sampath@gmail.com','9573198929','2006-05-12','2025-01-10','ACTIVE'),(2,'Joshna Priya','priya@gmail.com','9876543211','2002-08-20','2025-01-15','ACTIVE'),(3,'Tanu','tanu@gmail.com','9876543212','2008-03-18','2025-02-01','ACTIVE'),(4,'Rohit','rohit@gmail.com','9876543213','2000-11-25','2025-02-05','ACTIVE'),(5,'Venu','venu@gmail.com','9876543214','1998-07-14','2025-02-10','BLOCKED'),(6,'Bhanu','Bhanu@gmail.com','9876543215','2001-09-09','2025-03-01','ACTIVE'),(7,'Vikram S','vikram@gmail.com','9876543216','1997-12-30','2025-03-05','ACTIVE'),(8,'Gowtham','gowtham@gmail.com','9876543217','2002-02-14','2025-03-12','INACTIVE'),(9,'Rohit Verma','verma@gmail.com','9876543218','1999-06-22','2025-04-01','ACTIVE'),(10,'Iyer','iyer@gmail.com','9876543219','2000-04-17','2025-04-10','ACTIVE');
+/*!40000 ALTER TABLE `customers` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `devices`
+--
+
+DROP TABLE IF EXISTS `devices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `devices` (
+  `device_id` int NOT NULL AUTO_INCREMENT,
+  `customer_id` int NOT NULL,
+  `device_type` varchar(50) DEFAULT NULL,
+  `device_model` varchar(100) DEFAULT NULL,
+  `operating_system` varchar(50) DEFAULT NULL,
+  `device_fingerprint` varchar(255) DEFAULT NULL,
+  `registration_date` date DEFAULT NULL,
+  `device_status` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`device_id`),
+  KEY `customer_id` (`customer_id`),
+  CONSTRAINT `devices_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `devices`
+--
+
+LOCK TABLES `devices` WRITE;
+/*!40000 ALTER TABLE `devices` DISABLE KEYS */;
+INSERT INTO `devices` VALUES (1,1,'Mobile','Samsung Galaxy A55','Android','DEV001A55','2025-01-10','ACTIVE'),(2,2,'Mobile','iPhone 15','iOS','DEV002IP15','2025-01-15','ACTIVE'),(3,3,'Laptop','Dell Inspiron','Windows 11','DEV003DELL','2025-02-01','ACTIVE'),(4,4,'Mobile','OnePlus 12','Android','DEV004OP12','2025-02-05','ACTIVE'),(5,5,'Mobile','Redmi Note 13','Android','DEV005REDMI','2025-02-10','BLOCKED'),(6,6,'Laptop','HP Pavilion','Windows 11','DEV006HP','2025-03-01','ACTIVE'),(7,7,'Mobile','Vivo V30','Android','DEV007VIVO','2025-03-05','ACTIVE'),(8,8,'Tablet','iPad Air','iPadOS','DEV008IPAD','2025-03-12','ACTIVE'),(9,9,'Mobile','Google Pixel 8','Android','DEV009PIXEL','2025-04-01','ACTIVE'),(10,10,'Laptop','Lenovo ThinkPad','Windows 11','DEV010LEN','2025-04-10','INACTIVE');
+/*!40000 ALTER TABLE `devices` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `fraud_alerts`
+--
+
+DROP TABLE IF EXISTS `fraud_alerts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `fraud_alerts` (
+  `alert_id` int NOT NULL AUTO_INCREMENT,
+  `transaction_id` int NOT NULL,
+  `rule_id` int NOT NULL,
+  `alert_date` datetime DEFAULT NULL,
+  `alert_level` varchar(20) DEFAULT NULL,
+  `alert_description` varchar(255) DEFAULT NULL,
+  `alert_status` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`alert_id`),
+  KEY `transaction_id` (`transaction_id`),
+  KEY `rule_id` (`rule_id`),
+  CONSTRAINT `fraud_alerts_ibfk_1` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`transaction_id`),
+  CONSTRAINT `fraud_alerts_ibfk_2` FOREIGN KEY (`rule_id`) REFERENCES `fraud_rules` (`rule_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `fraud_alerts`
+--
+
+LOCK TABLES `fraud_alerts` WRITE;
+/*!40000 ALTER TABLE `fraud_alerts` DISABLE KEYS */;
+INSERT INTO `fraud_alerts` VALUES (1,1,1,'2025-06-01 10:16:00','LOW','Transaction flagged for routine monitoring','CLOSED'),(2,2,2,'2025-06-01 11:31:00','LOW','UPI transaction monitored','CLOSED'),(3,3,1,'2025-06-02 14:21:00','HIGH','Transaction exceeded high-value threshold','OPEN'),(4,4,3,'2025-06-02 16:46:00','LOW','Transaction monitored for spending frequency','CLOSED'),(5,5,2,'2025-06-03 02:11:00','CRITICAL','High-value transaction during late-night hours','OPEN'),(6,6,8,'2025-06-03 09:01:00','MEDIUM','Failed payment attempt detected','REVIEWED'),(7,7,10,'2025-06-04 13:16:00','HIGH','Unusual spending pattern detected','OPEN'),(8,8,4,'2025-06-04 18:31:00','LOW','Location activity monitored','CLOSED'),(9,9,1,'2025-06-05 01:26:00','CRITICAL','Very high-value transaction detected','OPEN'),(10,10,8,'2025-06-05 12:01:00','MEDIUM','Payment status requires monitoring','REVIEWED');
+/*!40000 ALTER TABLE `fraud_alerts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `fraud_rules`
+--
+
+DROP TABLE IF EXISTS `fraud_rules`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `fraud_rules` (
+  `rule_id` int NOT NULL AUTO_INCREMENT,
+  `rule_name` varchar(100) NOT NULL,
+  `rule_description` varchar(255) DEFAULT NULL,
+  `risk_level` varchar(20) DEFAULT NULL,
+  `threshold_amount` decimal(15,2) DEFAULT NULL,
+  `rule_status` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`rule_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `fraud_rules`
+--
+
+LOCK TABLES `fraud_rules` WRITE;
+/*!40000 ALTER TABLE `fraud_rules` DISABLE KEYS */;
+INSERT INTO `fraud_rules` VALUES (1,'High Value Transaction','Transaction amount exceeds normal spending limit','HIGH',50000.00,'ACTIVE'),(2,'Late Night Transaction','Transaction performed between 12 AM and 5 AM','MEDIUM',0.00,'ACTIVE'),(3,'Multiple Transactions','Multiple transactions within a short time','HIGH',10000.00,'ACTIVE'),(4,'Unusual Location','Transaction from an unusual geographical location','HIGH',0.00,'ACTIVE'),(5,'Blocked Account Usage','Transaction attempted using a blocked account','CRITICAL',0.00,'ACTIVE'),(6,'Suspicious Merchant','Transaction involving a flagged merchant','HIGH',0.00,'ACTIVE'),(7,'Large International Payment','Unusually large international transaction','CRITICAL',100000.00,'ACTIVE'),(8,'Repeated Failed Payments','Multiple failed payment attempts','MEDIUM',0.00,'ACTIVE'),(9,'Unregistered Device','Transaction from an unregistered device','HIGH',0.00,'ACTIVE'),(10,'Unusual Spending Pattern','Transaction differs significantly from customer spending history','MEDIUM',25000.00,'ACTIVE');
+/*!40000 ALTER TABLE `fraud_rules` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `investigations`
+--
+
+DROP TABLE IF EXISTS `investigations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `investigations` (
+  `investigation_id` int NOT NULL AUTO_INCREMENT,
+  `alert_id` int NOT NULL,
+  `investigator_name` varchar(100) DEFAULT NULL,
+  `investigation_date` date DEFAULT NULL,
+  `investigation_status` varchar(30) DEFAULT NULL,
+  `investigation_result` varchar(50) DEFAULT NULL,
+  `investigation_notes` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`investigation_id`),
+  KEY `alert_id` (`alert_id`),
+  CONSTRAINT `investigations_ibfk_1` FOREIGN KEY (`alert_id`) REFERENCES `fraud_alerts` (`alert_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `investigations`
+--
+
+LOCK TABLES `investigations` WRITE;
+/*!40000 ALTER TABLE `investigations` DISABLE KEYS */;
+INSERT INTO `investigations` VALUES (1,1,'Amit Kumar','2025-06-01','COMPLETED','LEGITIMATE','Normal customer transaction'),(2,2,'Priya Sharma','2025-06-01','COMPLETED','LEGITIMATE','Regular UPI activity'),(3,3,'Rahul Verma','2025-06-02','IN_PROGRESS','INCONCLUSIVE','High transaction amount requires verification'),(4,4,'Amit Kumar','2025-06-02','COMPLETED','LEGITIMATE','No suspicious activity found'),(5,5,'Neha Singh','2025-06-03','IN_PROGRESS','INCONCLUSIVE','Late-night high-value transaction under review'),(6,6,'Priya Sharma','2025-06-03','COMPLETED','LEGITIMATE','Payment failed due to technical issue'),(7,7,'Rahul Verma','2025-06-04','PENDING','INCONCLUSIVE','Unusual spending pattern needs review'),(8,8,'Amit Kumar','2025-06-04','COMPLETED','LEGITIMATE','Location verified'),(9,9,'Neha Singh','2025-06-05','IN_PROGRESS','INCONCLUSIVE','Very high-value transaction requires customer confirmation'),(10,10,'Priya Sharma','2025-06-05','COMPLETED','LEGITIMATE','Pending payment was not fraudulent');
+/*!40000 ALTER TABLE `investigations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `locations`
+--
+
+DROP TABLE IF EXISTS `locations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `locations` (
+  `location_id` int NOT NULL AUTO_INCREMENT,
+  `country` varchar(50) DEFAULT NULL,
+  `state` varchar(50) DEFAULT NULL,
+  `city` varchar(50) DEFAULT NULL,
+  `postal_code` varchar(15) DEFAULT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`location_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `locations`
+--
+
+LOCK TABLES `locations` WRITE;
+/*!40000 ALTER TABLE `locations` DISABLE KEYS */;
+INSERT INTO `locations` VALUES (1,'India','Andhra Pradesh','Visakhapatnam','530001','MVP Colony, Visakhapatnam'),(2,'India','Andhra Pradesh','Vijayawada','520001','Benz Circle, Vijayawada'),(3,'India','Telangana','Hyderabad','500001','Hitech City, Hyderabad'),(4,'India','Karnataka','Bengaluru','560001','Whitefield, Bengaluru'),(5,'India','Maharashtra','Mumbai','400001','Andheri, Mumbai'),(6,'India','Tamil Nadu','Chennai','600001','T Nagar, Chennai'),(7,'India','Delhi','New Delhi','110001','Connaught Place, New Delhi'),(8,'India','Kerala','Kochi','682001','MG Road, Kochi'),(9,'India','West Bengal','Kolkata','700001','Salt Lake, Kolkata'),(10,'India','Rajasthan','Jaipur','302001','Malviya Nagar, Jaipur');
+/*!40000 ALTER TABLE `locations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `login_events`
+--
+
+DROP TABLE IF EXISTS `login_events`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `login_events` (
+  `login_id` int NOT NULL AUTO_INCREMENT,
+  `customer_id` int NOT NULL,
+  `device_id` int DEFAULT NULL,
+  `location_id` int DEFAULT NULL,
+  `login_date` datetime DEFAULT NULL,
+  `login_status` varchar(20) DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `failure_reason` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`login_id`),
+  KEY `customer_id` (`customer_id`),
+  KEY `device_id` (`device_id`),
+  KEY `location_id` (`location_id`),
+  CONSTRAINT `login_events_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`),
+  CONSTRAINT `login_events_ibfk_2` FOREIGN KEY (`device_id`) REFERENCES `devices` (`device_id`),
+  CONSTRAINT `login_events_ibfk_3` FOREIGN KEY (`location_id`) REFERENCES `locations` (`location_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `login_events`
+--
+
+LOCK TABLES `login_events` WRITE;
+/*!40000 ALTER TABLE `login_events` DISABLE KEYS */;
+INSERT INTO `login_events` VALUES (1,1,1,1,'2025-06-01 09:00:00','SUCCESS','192.168.1.10',NULL),(2,2,2,2,'2025-06-01 09:15:00','SUCCESS','192.168.1.11',NULL),(3,3,3,3,'2025-06-02 10:30:00','SUCCESS','192.168.1.12',NULL),(4,4,4,4,'2025-06-02 11:45:00','FAILED','192.168.1.13','Incorrect password'),(5,5,5,5,'2025-06-03 02:00:00','FAILED','192.168.1.14','Multiple incorrect password attempts'),(6,6,6,6,'2025-06-03 08:30:00','SUCCESS','192.168.1.15',NULL),(7,7,7,7,'2025-06-04 12:00:00','SUCCESS','192.168.1.16',NULL),(8,8,8,8,'2025-06-04 17:30:00','FAILED','192.168.1.17','Unrecognized device'),(9,9,9,9,'2025-06-05 01:15:00','SUCCESS','192.168.1.18',NULL),(10,10,10,10,'2025-06-05 11:00:00','SUCCESS','192.168.1.19',NULL);
+/*!40000 ALTER TABLE `login_events` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `merchant_categories`
+--
+
+DROP TABLE IF EXISTS `merchant_categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `merchant_categories` (
+  `category_id` int NOT NULL AUTO_INCREMENT,
+  `category_name` varchar(100) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`category_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `merchant_categories`
+--
+
+LOCK TABLES `merchant_categories` WRITE;
+/*!40000 ALTER TABLE `merchant_categories` DISABLE KEYS */;
+INSERT INTO `merchant_categories` VALUES (1,'E-Commerce','Online shopping and retail purchases'),(2,'Food and Restaurants','Restaurants, cafes and food delivery'),(3,'Travel','Flight, train, bus and hotel bookings'),(4,'Healthcare','Hospitals, pharmacies and medical services'),(5,'Entertainment','Movies, games and entertainment services'),(6,'Education','Schools, colleges and online learning'),(7,'Utilities','Electricity, water and gas bill payments'),(8,'Fuel','Petrol pumps and fuel stations'),(9,'Telecommunications','Mobile and internet recharges'),(10,'Grocery','Supermarkets and grocery stores');
+/*!40000 ALTER TABLE `merchant_categories` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `merchants`
+--
+
+DROP TABLE IF EXISTS `merchants`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `merchants` (
+  `merchant_id` int NOT NULL AUTO_INCREMENT,
+  `merchant_name` varchar(100) NOT NULL,
+  `category_id` int NOT NULL,
+  `merchant_email` varchar(100) DEFAULT NULL,
+  `merchant_phone` varchar(15) DEFAULT NULL,
+  `merchant_status` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`merchant_id`),
+  KEY `category_id` (`category_id`),
+  CONSTRAINT `merchants_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `merchant_categories` (`category_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `merchants`
+--
+
+LOCK TABLES `merchants` WRITE;
+/*!40000 ALTER TABLE `merchants` DISABLE KEYS */;
+INSERT INTO `merchants` VALUES (1,'Amazon India',1,'support@amazon.in','9000000001','ACTIVE'),(2,'Swiggy',2,'support@swiggy.in','9000000002','ACTIVE'),(3,'IRCTC',3,'support@irctc.co.in','9000000003','ACTIVE'),(4,'Apollo Hospitals',4,'support@apollo.in','9000000004','ACTIVE'),(5,'BookMyShow',5,'support@bookmyshow.com','9000000005','ACTIVE'),(6,'Unacademy',6,'support@unacademy.com','9000000006','ACTIVE'),(7,'APEPDCL',7,'support@apepdcl.in','9000000007','ACTIVE'),(8,'Indian Oil',8,'support@indianoil.in','9000000008','ACTIVE'),(9,'Airtel',9,'support@airtel.in','9000000009','ACTIVE'),(10,'DMart',10,'support@dmart.in','9000000010','ACTIVE');
+/*!40000 ALTER TABLE `merchants` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `payment_methods`
+--
+
+DROP TABLE IF EXISTS `payment_methods`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `payment_methods` (
+  `payment_method_id` int NOT NULL AUTO_INCREMENT,
+  `method_name` varchar(50) NOT NULL,
+  `provider_name` varchar(100) DEFAULT NULL,
+  `payment_method_status` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`payment_method_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `payment_methods`
+--
+
+LOCK TABLES `payment_methods` WRITE;
+/*!40000 ALTER TABLE `payment_methods` DISABLE KEYS */;
+INSERT INTO `payment_methods` VALUES (1,'UPI','Google Pay','ACTIVE'),(2,'UPI','PhonePe','ACTIVE'),(3,'UPI','Paytm','ACTIVE'),(4,'Debit Card','Visa','ACTIVE'),(5,'Debit Card','Mastercard','ACTIVE'),(6,'Credit Card','Visa','ACTIVE'),(7,'Credit Card','RuPay','ACTIVE'),(8,'Net Banking','SBI Net Banking','ACTIVE'),(9,'Net Banking','HDFC Net Banking','ACTIVE'),(10,'Mobile Wallet','Amazon Pay','ACTIVE');
+/*!40000 ALTER TABLE `payment_methods` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `risk_assessments`
+--
+
+DROP TABLE IF EXISTS `risk_assessments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `risk_assessments` (
+  `assessment_id` int NOT NULL AUTO_INCREMENT,
+  `transaction_id` int NOT NULL,
+  `risk_score` int DEFAULT NULL,
+  `risk_level` varchar(20) DEFAULT NULL,
+  `assessment_date` datetime DEFAULT NULL,
+  `assessment_result` varchar(50) DEFAULT NULL,
+  `remarks` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`assessment_id`),
+  KEY `transaction_id` (`transaction_id`),
+  CONSTRAINT `risk_assessments_ibfk_1` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`transaction_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `risk_assessments`
+--
+
+LOCK TABLES `risk_assessments` WRITE;
+/*!40000 ALTER TABLE `risk_assessments` DISABLE KEYS */;
+INSERT INTO `risk_assessments` VALUES (1,1,10,'LOW','2025-06-01 10:16:00','SAFE','Normal transaction pattern'),(2,2,15,'LOW','2025-06-01 11:31:00','SAFE','Regular UPI transaction'),(3,3,75,'HIGH','2025-06-02 14:21:00','SUSPICIOUS','High transaction amount'),(4,4,25,'LOW','2025-06-02 16:46:00','SAFE','Transaction within normal limits'),(5,5,90,'CRITICAL','2025-06-03 02:11:00','SUSPICIOUS','High-value late-night transaction'),(6,6,40,'MEDIUM','2025-06-03 09:01:00','SUSPICIOUS','Failed payment attempt'),(7,7,60,'HIGH','2025-06-04 13:16:00','SUSPICIOUS','Unusual transaction amount'),(8,8,12,'LOW','2025-06-04 18:31:00','SAFE','Normal transaction activity'),(9,9,95,'CRITICAL','2025-06-05 01:26:00','SUSPICIOUS','Very high transaction during unusual hours'),(10,10,20,'LOW','2025-06-05 12:01:00','SAFE','Low-value pending transaction');
+/*!40000 ALTER TABLE `risk_assessments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `transactions`
+--
+
+DROP TABLE IF EXISTS `transactions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `transactions` (
+  `transaction_id` int NOT NULL AUTO_INCREMENT,
+  `account_id` int NOT NULL,
+  `merchant_id` int NOT NULL,
+  `device_id` int DEFAULT NULL,
+  `payment_method_id` int NOT NULL,
+  `location_id` int DEFAULT NULL,
+  `transaction_amount` decimal(15,2) NOT NULL,
+  `transaction_date` datetime DEFAULT NULL,
+  `transaction_type` varchar(30) DEFAULT NULL,
+  `transaction_status` varchar(20) DEFAULT NULL,
+  `transaction_reference` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`transaction_id`),
+  UNIQUE KEY `transaction_reference` (`transaction_reference`),
+  KEY `account_id` (`account_id`),
+  KEY `merchant_id` (`merchant_id`),
+  KEY `device_id` (`device_id`),
+  KEY `payment_method_id` (`payment_method_id`),
+  KEY `location_id` (`location_id`),
+  CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`account_id`),
+  CONSTRAINT `transactions_ibfk_2` FOREIGN KEY (`merchant_id`) REFERENCES `merchants` (`merchant_id`),
+  CONSTRAINT `transactions_ibfk_3` FOREIGN KEY (`device_id`) REFERENCES `devices` (`device_id`),
+  CONSTRAINT `transactions_ibfk_4` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_methods` (`payment_method_id`),
+  CONSTRAINT `transactions_ibfk_5` FOREIGN KEY (`location_id`) REFERENCES `locations` (`location_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `transactions`
+--
+
+LOCK TABLES `transactions` WRITE;
+/*!40000 ALTER TABLE `transactions` DISABLE KEYS */;
+INSERT INTO `transactions` VALUES (1,1,1,1,1,1,1500.00,'2025-06-01 10:15:00','DEBIT','SUCCESS','TXN100001'),(2,2,2,2,2,2,2500.00,'2025-06-01 11:30:00','DEBIT','SUCCESS','TXN100002'),(3,3,3,3,3,3,75000.00,'2025-06-02 14:20:00','DEBIT','SUCCESS','TXN100003'),(4,4,4,4,4,4,12000.00,'2025-06-02 16:45:00','DEBIT','SUCCESS','TXN100004'),(5,5,5,5,5,5,95000.00,'2025-06-03 02:10:00','DEBIT','SUCCESS','TXN100005'),(6,6,6,6,6,6,800.00,'2025-06-03 09:00:00','DEBIT','FAILED','TXN100006'),(7,7,7,7,7,7,45000.00,'2025-06-04 13:15:00','DEBIT','SUCCESS','TXN100007'),(8,8,8,8,8,8,3000.00,'2025-06-04 18:30:00','DEBIT','SUCCESS','TXN100008'),(9,9,9,9,9,9,150000.00,'2025-06-05 01:25:00','DEBIT','SUCCESS','TXN100009'),(10,10,10,10,10,10,500.00,'2025-06-05 12:00:00','DEBIT','PENDING','TXN100010');
+/*!40000 ALTER TABLE `transactions` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-11-09 17:57:41
